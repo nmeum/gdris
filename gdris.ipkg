@@ -2,6 +2,7 @@ package gdris
 
 modules = Gdris
 
+depends = contrib
 sourcedir = "src"
 main = Gdris
 executable = gdris
