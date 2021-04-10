@@ -33,9 +33,19 @@ runClient addr = do
 	putStrLn ("host: " ++ (fst addr))
 	putStrLn ("port: " ++ (show (snd addr)))
 
-	(Just s) <- createClient addr
+	Just s <- createClient addr
 	  | _ => do putStrLn "Failed to create socket"
 	            exitFailure
+
+	;; Request directory listing
+	Right n <- send s ("\r\n")
+	  | Left err => do putStrLn $ "send failed: " ++ show err
+	                   exitFailure
+	Right str <- recvAll s
+	  | Left err => do putStrLn ("recv failed: " ++ show err)
+	                   exitFailure
+	putStrLn ("Received: " ++ str)
+
 	replWith s "> " processInput
 
 main : IO ()
