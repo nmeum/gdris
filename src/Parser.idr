@@ -41,7 +41,6 @@ parseTab = satisfy (\x => x == '\t') <?> "tab character"
 parseDelim : ParseT IO String
 parseDelim = string "\r\n"
 
-public export
 parseItem : ParseT IO Item
 parseItem = do
 	type <- parseType
@@ -52,5 +51,8 @@ parseItem = do
 	host <- parseHost
 	ignore $ parseTab
 	port <- parsePort
-	ignore $ parseDelim
 	pure $ MkItem type desc select (MkPair host port)
+
+public export
+parseItems : ParseT IO (List Item)
+parseItems = parseItem `sepBy` parseDelim
