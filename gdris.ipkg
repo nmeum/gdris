@@ -1,6 +1,9 @@
 package gdris
 
-modules = Gdris
+modules =
+	Gopher,
+	Parser,
+	Gdris
 
 depends = contrib
 sourcedir = "src"
