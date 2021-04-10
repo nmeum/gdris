@@ -5,7 +5,7 @@ modules =
 	Parser,
 	Gdris
 
-depends = contrib
+depends = contrib, network
 sourcedir = "src"
 main = Gdris
 executable = gdris
