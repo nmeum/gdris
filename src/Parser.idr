@@ -23,13 +23,13 @@ parseSelector = parseDesc
 
 parseHost' : ParseT IO String
 parseHost' = do
-	r1 <- (many (satisfy (\x => x /= '.')))
+	r1 <- many $ satisfy isHostPart
 	r2 <- (string ".")
 	pure $ ((pack r1) ++ r2)
 parseHost : ParseT IO String
 parseHost = do
 	name <- (many parseHost')
-	tld  <- (many (satisfy (\x => x /= '.')))
+	tld  <- many $ satisfy isHostPart
 	pure $ (concat name) ++ (pack tld)
 
 parsePort : ParseT IO Nat
@@ -41,6 +41,7 @@ parseTab = satisfy (\x => x == '\t') <?> "tab character"
 parseDelim : ParseT IO String
 parseDelim = string "\r\n"
 
+public export
 parseItem : ParseT IO Item
 parseItem = do
 	type <- parseType

@@ -40,3 +40,7 @@ isUnAscii '\n' = False
 isUnAscii '\t' = False
 isUnAscii '\0' = False
 isUnAscii _    = True
+
+public export
+isHostPart : Char -> Bool
+isHostPart c = (isUnAscii c) && (c /= '.')
