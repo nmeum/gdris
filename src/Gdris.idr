@@ -25,10 +25,7 @@ record Context where
 -- XXX: If this returns a Maybe Monad the totality checker doesn't terminate
 lineToCmd : String -> Command
 lineToCmd input = case words input of
-    ["goto", x] => let n = stringToNatOrZ x in
-                      if n == 0
-                         then Unknown -- Gotos must start 1
-                         else Goto $ natToInteger n
+    ["goto", x] => Goto $ cast x
     ["exit"]    => Exit
     _ => Unknown
 
