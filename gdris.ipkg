@@ -1,0 +1,7 @@
+package gdris
+
+modules = Gdris
+
+sourcedir = "src"
+main = Gdris
+executable = gdris
