@@ -34,7 +34,7 @@ lineToCmd input = case words input of
     ["exit"]    => Exit
     _ => Unknown
 
-readCommand : HasIO io => String -> io Command
+readCommand : String -> IO Command
 readCommand prompt
    = do eof <- fEOF stdin
         if eof
@@ -50,7 +50,7 @@ getItem ctx n = let idx = integerToFin n (length ctx.menu) in
         Just f  => Just $ index f (fromList ctx.menu)
         Nothing => Nothing
 
-createClient : HasIO io => Address -> io (Maybe Socket)
+createClient : Address -> IO (Maybe Socket)
 createClient addr = do
     Right sock <- socket AF_INET Stream 0
         | Left fail => pure $ Nothing
@@ -59,7 +59,7 @@ createClient addr = do
         then pure $ Nothing
         else pure $ Just sock
 
-sendAndRecv : HasIO io => Socket -> String -> io (Maybe String)
+sendAndRecv : Socket -> String -> IO (Maybe String)
 sendAndRecv sock input = do
     n <- send sock input
     case n of
@@ -69,7 +69,7 @@ sendAndRecv sock input = do
                         Left  _ => pure Nothing
         Left err => pure Nothing
 
-makeReq : HasIO io => Address -> String -> io (Maybe String)
+makeReq : Address -> String -> IO (Maybe String)
 makeReq addr input = do
     sock <- createClient addr
     case sock of
@@ -78,16 +78,27 @@ makeReq addr input = do
                       pure $ out
         Nothing => pure $ Nothing
 
-execTrans : HasIO io => Context -> Item -> io (Context, String)
+newCtx : Context -> (List Item) -> Context
+newCtx _ items = MkCtx items
+
+execTrans : Context -> Item -> IO (Context, String)
 execTrans ctx (MkItem Document _ s addr) = do
     out <- makeReq addr s
     pure $ MkPair ctx $ case out of
         Just out => out
         Nothing  => "makeReq failed"
+execTrans ctx (MkItem Directory _ s addr) = do
+    out <- makeReq addr s
+    case out of
+        Just o => do i <- parseAll o
+                     pure $ case i of
+                        Right it => MkPair (newCtx ctx it) (showMenu it)
+                        Left err => MkPair ctx $ show err
+        Nothing => pure $ MkPair ctx "makeReq failed"
 execTrans ctx _ = do
     pure $ MkPair ctx "not implemented"
 
-execGoto : HasIO io => Context -> Integer -> io (Context, String)
+execGoto : Context -> Integer -> IO (Context, String)
 execGoto ctx n =
     case item of
         Just i  => do execTrans ctx i
@@ -96,7 +107,7 @@ execGoto ctx n =
         item : Maybe Item
         item = getItem ctx n
 
-runREPL : HasIO io => Context -> io ()
+runREPL : Context -> IO ()
 runREPL ctx = do
     cmd <- readCommand "> "
     case cmd of
