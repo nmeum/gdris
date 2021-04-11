@@ -9,6 +9,7 @@ import System.File
 import Data.Fin
 import Data.Vect
 import Data.Strings
+import Data.String.Parser
 
 import Network.Socket
 
@@ -46,6 +47,16 @@ getItem ctx n = let idx = integerToFin n (length ctx.menu) in
     case idx of
         Just f  => Just $ index f (fromList ctx.menu)
         Nothing => Nothing
+
+sendAndRecv : HasIO io => Socket -> Selector -> io (Maybe String)
+sendAndRecv sock selector = do
+    n <- send sock selector
+    case n of
+        Right _  => do r <- recvAll sock
+                       case r of
+                        Right x => pure $ Just x
+                        Left  _ => pure Nothing
+        Left err => pure Nothing
 
 execGoto : HasIO io => Context -> Integer -> io Context
 execGoto ctx n =
@@ -85,7 +96,15 @@ runClient addr = do
         | _ => do putStrLn "Failed to create socket"
                   exitFailure
 
-    runREPL (MkCtx s [])
+    Just out <- sendAndRecv s "\r\n"
+        | _ => do putStrLn "Failed to retrieve initial menu"
+                  exitFailure
+    Right (items, _) <- parseT parseItems out
+        | Left err => do putStrLn $ "Parsing failed: " ++ show err
+                         exitFailure
+
+    putStr out
+    runREPL (MkCtx s items)
 
 main : IO ()
 main = do
