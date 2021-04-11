@@ -79,11 +79,21 @@ makeReq addr input = do
                       pure $ out
         Nothing => pure $ Nothing
 
+execTrans : HasIO io => Context -> Item -> io Context
+execTrans ctx (MkItem Document _ s addr) = do
+    out <- makeReq addr s
+    case out of
+        Just out => putStr out
+        Nothing  => putStrLn "makeReq failed"
+    pure ctx
+execTrans ctx _ = do
+    putStrLn "not implemented"
+    pure ctx
+
 execGoto : HasIO io => Context -> Integer -> io Context
 execGoto ctx n =
     case item of
-        Just (MkItem t d s a) => do putStrLn $ "desc: " ++ d
-                                    pure $ ctx
+        Just i  => do execTrans ctx i
         Nothing => do putStrLn "unknown menu item"
                       pure $ ctx
     where
