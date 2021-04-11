@@ -79,23 +79,20 @@ makeReq addr input = do
                       pure $ out
         Nothing => pure $ Nothing
 
-execTrans : HasIO io => Context -> Item -> io Context
+execTrans : HasIO io => Context -> Item -> io (Context, String)
 execTrans ctx (MkItem Document _ s addr) = do
     out <- makeReq addr s
-    case out of
-        Just out => putStr out
-        Nothing  => putStrLn "makeReq failed"
-    pure ctx
+    pure $ MkPair ctx $ case out of
+        Just out => out
+        Nothing  => "makeReq failed"
 execTrans ctx _ = do
-    putStrLn "not implemented"
-    pure ctx
+    pure $ MkPair ctx "not implemented"
 
-execGoto : HasIO io => Context -> Integer -> io Context
+execGoto : HasIO io => Context -> Integer -> io (Context, String)
 execGoto ctx n =
     case item of
         Just i  => do execTrans ctx i
-        Nothing => do putStrLn "unknown menu item"
-                      pure $ ctx
+        Nothing => do pure $ (MkPair ctx "unknown menu item")
     where
         item : Maybe Item
         item = getItem ctx n
@@ -104,8 +101,9 @@ runREPL : HasIO io => Context -> io ()
 runREPL ctx = do
     cmd <- readCommand "> "
     case cmd of
-        Goto x  => do ctx <- execGoto ctx x
-                      runREPL ctx
+        Goto x  => do p <- execGoto ctx x
+                      putStrLn $ snd p
+                      runREPL $ fst p
         Unknown => do putStrLn "unknown command"
                       runREPL ctx
         Exit => pure ()
