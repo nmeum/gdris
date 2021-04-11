@@ -21,11 +21,11 @@ record Context where
     menu   : (List Item)
 
 showMenu : (List Item) -> String
-showMenu xs = showMenu' 0 xs
+showMenu xs = trim $ showMenu' 0 xs
     where
         showMenu' : Nat -> (List Item) -> String
         showMenu' _ [] = ""
-        showMenu' n (x :: xs) = show n ++ ": " ++ (show x) ++ (showMenu' (n + 1) xs)
+        showMenu' n (x :: xs) = show n ++ ": " ++ (show x) ++ "\n" ++ (showMenu' (n + 1) xs)
 
 -- XXX: If this returns a Maybe Monad the totality checker doesn't terminate
 lineToCmd : String -> Command
