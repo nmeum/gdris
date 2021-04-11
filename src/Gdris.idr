@@ -107,6 +107,7 @@ runClient addr = do
         | Left err => do putStrLn $ "Parsing failed: " ++ show err
                          exitFailure
 
+    -- TODO: Ensure that parser consumes entire input
     ctx <- pure $ MkCtx s items
     putStrLn $ showMenu ctx.menu
 
