@@ -22,6 +22,13 @@ record Context where
     socket : Socket
     menu   : (List Item)
 
+showMenu : (List Item) -> String
+showMenu xs = showMenu' 0 xs
+    where
+        showMenu' : Nat -> (List Item) -> String
+        showMenu' _ [] = ""
+        showMenu' n (x :: xs) = show n ++ ": " ++ (show x) ++ (showMenu' (n + 1) xs)
+
 -- XXX: If this returns a Maybe Monad the totality checker doesn't terminate
 lineToCmd : String -> Command
 lineToCmd input = case words input of
@@ -100,8 +107,10 @@ runClient addr = do
         | Left err => do putStrLn $ "Parsing failed: " ++ show err
                          exitFailure
 
-    putStr out
-    runREPL (MkCtx s items)
+    ctx <- pure $ MkCtx s items
+    putStrLn $ showMenu ctx.menu
+
+    runREPL ctx
 
 main : IO ()
 main = do

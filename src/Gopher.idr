@@ -6,6 +6,12 @@ import Builtin
 public export
 data ItemType = Document | Directory | SearchService
 
+public export
+Show ItemType where
+    show Document  = "Document"
+    show Directory = "Directory"
+    show SearchService = "SearchService"
+
 -- Selector used to retrieve a document from a server.
 public export
 Selector : Type
@@ -19,6 +25,10 @@ Address = (String, Nat)
 -- Product type for a Gopher menu entry.
 public export
 data Item = MkItem ItemType String Selector Address
+
+public export
+Show Item where
+    show (MkItem ty desc select addr) = "[" ++ show ty ++ "]" ++ "\t" ++ desc ++ "\t"
 
 public export
 marshalType : ItemType -> Char
