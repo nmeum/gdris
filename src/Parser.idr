@@ -21,7 +21,7 @@ parseType = do
 
 parseDesc : ParseT IO String
 parseDesc = do
-	res <- (many1 parseUnAscii)
+	res <- many parseUnAscii
 	pure $ pack res
 
 parseSelector : ParseT IO Selector
@@ -29,13 +29,13 @@ parseSelector = parseDesc
 
 parseHost' : ParseT IO String
 parseHost' = do
-	r1 <- many1 $ satisfy isHostPart
+	r1 <- many $ satisfy isHostPart
 	r2 <- (string ".")
 	pure $ ((pack r1) ++ r2)
 parseHost : ParseT IO String
 parseHost = do
-	name <- (many1 parseHost')
-	tld  <- many1 $ satisfy isHostPart
+	name <- many parseHost'
+	tld  <- many $ satisfy isHostPart
 	pure $ (concat name) ++ (pack tld)
 
 parsePort : ParseT IO Nat
