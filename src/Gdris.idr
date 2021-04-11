@@ -9,7 +9,6 @@ import System.File
 import Data.Fin
 import Data.Vect
 import Data.Strings
-import Data.String.Parser
 
 import Network.Socket
 
@@ -115,11 +114,10 @@ runClient addr = do
     Just out <- makeReq addr "\r\n"
         | Nothing => do putStrLn $ "makeReq failed"
                         exitFailure
-    Right (items, _) <- parseT parseItems out
+    Right items <- parseAll out
         | Left err => do putStrLn $ "Parsing failed: " ++ show err
                          exitFailure
 
-    -- TODO: Ensure that parser consumes entire input
     ctx <- pure $ MkCtx items
     putStrLn $ showMenu ctx.menu
 

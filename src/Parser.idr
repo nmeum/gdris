@@ -57,8 +57,18 @@ parseItem = do
 	host <- parseHost
 	ignore $ parseTab
 	port <- parsePort
+	ignore $ parseDelim
 	pure $ MkItem type desc select (MkPair host port)
 
-public export
 parseItems : ParseT IO (List Item)
-parseItems = parseItem `sepBy` parseDelim
+parseItems = many1 parseItem
+
+public export
+parseAll : String -> IO (Either String (List Item))
+parseAll input = do
+	r <- parseT parseItems input
+	pure $ case r of
+		Left err => Left err
+		Right (items, n) => if n /= (cast $ length input)
+			then Left $ "not all data consumed: " ++ (show (n - (cast $ length input)))
+			else Right items
