@@ -1,5 +1,6 @@
 module Gdris
 
+import Util
 import Gopher
 import Parser
 
@@ -63,7 +64,7 @@ sendAndRecv : Socket -> String -> IO (Maybe String)
 sendAndRecv sock input = do
     n <- send sock input
     case n of
-        Right _  => do r <- recvAll sock
+        Right _  => do r <- recvMsg sock
                        case r of
                         Right x => pure $ Just x
                         Left  _ => pure Nothing
