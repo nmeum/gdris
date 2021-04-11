@@ -74,7 +74,7 @@ createClient : HasIO io => Address -> io (Maybe Socket)
 createClient addr = do
     Right sock <- socket AF_INET Stream 0
         | Left fail => pure $ Nothing
-    res <- connect sock (Hostname "localhost") 8000 -- TODO: take from tuple
+    res <- connect sock (Hostname $ fst addr) $ (cast $ snd addr)
     if res /= 0
         then pure $ Nothing
         else pure $ Just sock
