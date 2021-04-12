@@ -33,12 +33,6 @@ Show Item where
     show (MkItem ty desc select addr) = "[" ++ show ty ++ "]" ++ "\t" ++ desc ++ "\t"
 
 public export
-marshalType : ItemType -> Char
-marshalType Document      = '0'
-marshalType Directory     = '1'
-marshalType SearchService = '7'
-
-public export
 unmarshalType : Char -> Maybe ItemType
 unmarshalType '0' = Just Document
 unmarshalType '1' = Just Directory
