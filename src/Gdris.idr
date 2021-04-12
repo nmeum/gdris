@@ -19,7 +19,6 @@ data Command = Goto Integer | Exit | Unknown
 -- REPL execution context.
 record Context where
     constructor MkCtx
-    socket : Socket
     menu   : (List Item)
 
 showMenu : (List Item) -> String
@@ -52,15 +51,33 @@ getItem ctx n = let idx = integerToFin n (length ctx.menu) in
         Just f  => Just $ index f (fromList ctx.menu)
         Nothing => Nothing
 
-sendAndRecv : HasIO io => Socket -> Selector -> io (Maybe String)
-sendAndRecv sock selector = do
-    n <- send sock selector
+createClient : HasIO io => Address -> io (Maybe Socket)
+createClient addr = do
+    Right sock <- socket AF_INET Stream 0
+        | Left fail => pure $ Nothing
+    res <- connect sock (Hostname $ fst addr) $ (cast $ snd addr)
+    if res /= 0
+        then pure $ Nothing
+        else pure $ Just sock
+
+sendAndRecv : HasIO io => Socket -> String -> io (Maybe String)
+sendAndRecv sock input = do
+    n <- send sock input
     case n of
         Right _  => do r <- recvAll sock
                        case r of
                         Right x => pure $ Just x
                         Left  _ => pure Nothing
         Left err => pure Nothing
+
+makeReq : HasIO io => Address -> String -> io (Maybe String)
+makeReq addr input = do
+    sock <- createClient addr
+    case sock of
+        Just s  => do out <- sendAndRecv s input
+                      close s
+                      pure $ out
+        Nothing => pure $ Nothing
 
 execGoto : HasIO io => Context -> Integer -> io Context
 execGoto ctx n =
@@ -85,30 +102,17 @@ runREPL ctx = do
 
     pure ()
 
-createClient : HasIO io => Address -> io (Maybe Socket)
-createClient addr = do
-    Right sock <- socket AF_INET Stream 0
-        | Left fail => pure $ Nothing
-    res <- connect sock (Hostname $ fst addr) $ (cast $ snd addr)
-    if res /= 0
-        then pure $ Nothing
-        else pure $ Just sock
-
 runClient : Address -> IO ()
 runClient addr = do
-    Just s <- createClient addr
-        | _ => do putStrLn "Failed to create socket"
-                  exitFailure
-
-    Just out <- sendAndRecv s "\r\n"
-        | _ => do putStrLn "Failed to retrieve initial menu"
-                  exitFailure
+    Just out <- makeReq addr "\r\n"
+        | Nothing => do putStrLn $ "makeReq failed"
+                        exitFailure
     Right (items, _) <- parseT parseItems out
         | Left err => do putStrLn $ "Parsing failed: " ++ show err
                          exitFailure
 
     -- TODO: Ensure that parser consumes entire input
-    ctx <- pure $ MkCtx s items
+    ctx <- pure $ MkCtx items
     putStrLn $ showMenu ctx.menu
 
     runREPL ctx
