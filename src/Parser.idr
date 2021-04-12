@@ -17,7 +17,7 @@ parseType = do
 	res <- parseUnAscii
 	case (unmarshalType res) of
 		Just a  => pure $ a
-		Nothing => fail "unknown item type"
+		Nothing => fail $ "unknown item type: " ++ show res
 
 parseDesc : ParseT IO String
 parseDesc = do
