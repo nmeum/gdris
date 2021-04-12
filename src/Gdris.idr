@@ -74,7 +74,7 @@ makeReq : Address -> String -> IO (Maybe String)
 makeReq addr input = do
     sock <- createClient addr
     case sock of
-        Just s  => do out <- sendAndRecv s input
+        Just s  => do out <- sendAndRecv s (input ++ "\r\n")
                       close s
                       pure $ out
         Nothing => pure $ Nothing
@@ -123,7 +123,7 @@ runREPL ctx = do
 
 runClient : Address -> IO ()
 runClient addr = do
-    Just out <- makeReq addr "\r\n"
+    Just out <- makeReq addr ""
         | Nothing => do putStrLn $ "makeReq failed"
                         exitFailure
     Right items <- parseAll out
