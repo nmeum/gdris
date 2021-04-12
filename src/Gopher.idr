@@ -101,7 +101,8 @@ recvMsg' sock acc = do
                       then pure $ Right (concat acc)
                       else pure $ Left err
         Right (str, n) => if isSuffixOf delim str
-                            then pure (Right (concat $ acc ++ [str]))
+                            then pure $ let out = rmDelim str in
+                                Right (concat $ acc ++ [out])
                             else recvMsg' sock (acc ++ [str])
     where
         bufsiz : ByteLength
@@ -109,6 +110,9 @@ recvMsg' sock acc = do
 
         delim : String
         delim = "\r\n.\r\n"
+
+        rmDelim : String -> String
+        rmDelim s = strSubstr 0 (cast $ minus (length s) (length ".\r\n")) s
 
 export
 recvMsg : HasIO io => (sock : Socket) -> io (Either SocketError String)
