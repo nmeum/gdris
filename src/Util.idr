@@ -18,7 +18,9 @@ recvMsg sock = recvRec sock []
     recvRec : Socket -> List String -> io (Either SocketError String)
     recvRec sock acc = do res <- recv sock bufsiz
                           case res of
-                            Left err => pure (Left err)
-                            Right (str, _) => if isSuffixOf delim str
+                            Left err => if err == 0
+                                            then pure $ Right (concat acc)
+                                            else pure $ Left err
+                            Right (str, n) => if isSuffixOf delim str || n == 0
                                                 then pure (Right (concat $ acc ++ [str]))
                                                 else recvRec sock (str :: acc)
