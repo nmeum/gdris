@@ -6,13 +6,41 @@ import Network.Socket
 
 -- Valid gopher item types as defined in RFC 1436.
 public export
-data ItemType = Document | Directory | SearchService
+data ItemType = Document |
+    Directory |
+    PhoneBook |
+    Error |
+    BinHex |
+    PCDOS |
+    UnixUuencoded |
+    SearchService |
+    TelnetSession |
+    Binary |
+    Duplicated |
+    Gif |
+    Image |
+    Tn3270Session |
+    InfoLine |
+    HTML
 
 public export
 Show ItemType where
     show Document  = "Document"
     show Directory = "Directory"
+    show PhoneBook = "Phonebook"
+    show Error = "Error"
+    show BinHex = "BINHEX"
+    show PCDOS = "PCDOS"
+    show UnixUuencoded = "Uuencoded"
     show SearchService = "SearchService"
+    show TelnetSession = "Telnet"
+    show Binary = "Binary"
+    show Duplicated = "Duplicated"
+    show Gif = "Gif"
+    show Image = "Image"
+    show Tn3270Session ="Tn3270"
+    show InfoLine = "Info"
+    show HTML = "HTML"
 
 -- Selector used to retrieve a document from a server.
 public export
@@ -36,7 +64,20 @@ public export
 unmarshalType : Char -> Maybe ItemType
 unmarshalType '0' = Just Document
 unmarshalType '1' = Just Directory
+unmarshalType '2' = Just PhoneBook
+unmarshalType '3' = Just Error
+unmarshalType '4' = Just BinHex
+unmarshalType '5' = Just PCDOS
+unmarshalType '6' = Just UnixUuencoded
 unmarshalType '7' = Just SearchService
+unmarshalType '8' = Just TelnetSession
+unmarshalType '9' = Just Binary
+unmarshalType '+' = Just Duplicated
+unmarshalType 'g' = Just Gif
+unmarshalType 'I' = Just Image
+unmarshalType 'i' = Just InfoLine
+unmarshalType 'T' = Just Tn3270Session
+unmarshalType 'h' = Just HTML
 unmarshalType _   = Nothing
 
 public export
