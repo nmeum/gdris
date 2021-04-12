@@ -10,8 +10,13 @@ import System.File
 import Data.Fin
 import Data.Vect
 import Data.Strings
+import Data.Nat
 
 import Network.Socket.Data
+
+-- String used to separate link numbers from content.
+seperator : String
+seperator = " │ "
 
 -- Valid REPL input commands.
 data Command = Goto Integer | Menu | Exit | Unknown
@@ -24,12 +29,24 @@ record Context where
 newCtx : Context -> (List Item) -> Context
 newCtx _ items = MkCtx items
 
+padToWidth : String -> Nat -> String
+padToWidth str n = if (Strings.length str) >= n
+                    then str
+                    else padToWidth (str ++ " ") $ pred n
+
+-- Returns amount of digits required to display number in decimal.
+digitsReq : Nat -> Nat
+digitsReq n = if n `div` 10 > 0
+    then 1 + (digitsReq $ n `div` 10)
+    else 1
+
 showMenu : (List Item) -> String
-showMenu xs = trim $ showMenu' 0 xs
+showMenu xs = trim $ showMenu' (digitsReq $ length xs) 0 xs
     where
-        showMenu' : Nat -> (List Item) -> String
-        showMenu' _ [] = ""
-        showMenu' n (x :: xs) = show n ++ ": " ++ (show x) ++ "\n" ++ (showMenu' (n + 1) xs)
+        showMenu' : Nat -> Nat -> (List Item) -> String
+        showMenu' _ _ [] = ""
+        showMenu' max n (x :: xs) = (padToWidth (show n) max) ++ seperator
+                                    ++ (show x) ++ "\n" ++ (showMenu' max (n + 1) xs)
 
 -- XXX: If this returns a Maybe Monad the totality checker doesn't terminate
 lineToCmd : String -> Command
