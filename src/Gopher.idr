@@ -61,7 +61,7 @@ recvMsg' sock acc = do
                       else pure $ Left err
         Right (str, n) => if isSuffixOf delim str
                             then pure (Right (concat $ acc ++ [str]))
-                            else recvMsg' sock (str :: acc)
+                            else recvMsg' sock (acc ++ [str])
     where
         bufsiz : ByteLength
         bufsiz = 4096
