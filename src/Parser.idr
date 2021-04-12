@@ -61,7 +61,11 @@ parseItem = do
 	pure $ MkItem type desc select (MkPair host port)
 
 parseItems : ParseT IO (List Item)
-parseItems = many1 parseItem
+parseItems = do
+	items <- many1 parseItem
+	ignore $ (string ".")
+	ignore $ parseDelim
+	pure items
 
 public export
 parseAll : String -> IO (Either String (List Item))
