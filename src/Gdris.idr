@@ -69,7 +69,7 @@ execTrans ctx (MkItem Directory _ s addr) = do
                          Left err => MkPair ctx $ show err
         Left err => pure $ MkPair ctx $ "makeReq failed: " ++ show err
 execTrans ctx _ = do
-    pure $ MkPair ctx "not implemented"
+    pure $ MkPair ctx "item type not implemented yet"
 
 execGoto : Context -> Integer -> IO (Context, String)
 execGoto ctx n =
