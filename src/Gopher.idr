@@ -1,6 +1,8 @@
 module Gopher
 
 import Builtin
+import Data.Strings
+import Network.Socket
 
 -- Valid gopher item types as defined in RFC 1436.
 public export
@@ -54,3 +56,25 @@ isUnAscii _    = True
 public export
 isHostPart : Char -> Bool
 isHostPart c = (isUnAscii c) && (c /= '.')
+
+partial
+recvMsg' : HasIO io => Socket -> List String -> io (Either SocketError String)
+recvMsg' sock acc = do
+    res <- recv sock bufsiz
+    case res of
+        Left err => if err == 0
+                      then pure $ Right (concat acc)
+                      else pure $ Left err
+        Right (str, n) => if isSuffixOf delim str
+                            then pure (Right (concat $ acc ++ [str]))
+                            else recvMsg' sock (str :: acc)
+    where
+        bufsiz : ByteLength
+        bufsiz = 4096
+
+        delim : String
+        delim = "\r\n.\r\n"
+
+export
+recvMsg : HasIO io => (sock : Socket) -> io (Either SocketError String)
+recvMsg sock = recvMsg' sock []

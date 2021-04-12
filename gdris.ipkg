@@ -1,7 +1,6 @@
 package gdris
 
 modules =
-	Util,
 	Gopher,
 	Parser,
 	Gdris

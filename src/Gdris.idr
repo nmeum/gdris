@@ -1,6 +1,5 @@
 module Gdris
 
-import Util
 import Gopher
 import Parser
 
