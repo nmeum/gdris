@@ -14,7 +14,7 @@ import Data.Strings
 import Network.Socket.Data
 
 -- Valid REPL input commands.
-data Command = Goto Integer | Exit | Unknown
+data Command = Goto Integer | Menu | Exit | Unknown
 
 -- REPL execution context.
 record Context where
@@ -35,6 +35,7 @@ showMenu xs = trim $ showMenu' 0 xs
 lineToCmd : String -> Command
 lineToCmd input = case words input of
     ["goto", x] => Goto $ cast x
+    ["menu"]    => Menu
     ["exit"]    => Exit
     _ => Unknown
 
@@ -87,6 +88,8 @@ runREPL ctx = do
         Goto x  => do p <- execGoto ctx x
                       putStrLn $ snd p
                       runREPL $ fst p
+        Menu    => do putStrLn $ showMenu ctx.menu
+                      runREPL ctx
         Unknown => do putStrLn "unknown command"
                       runREPL ctx
         Exit => pure ()
