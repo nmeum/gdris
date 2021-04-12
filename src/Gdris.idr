@@ -21,6 +21,9 @@ record Context where
     constructor MkCtx
     menu   : (List Item)
 
+newCtx : Context -> (List Item) -> Context
+newCtx _ items = MkCtx items
+
 showMenu : (List Item) -> String
 showMenu xs = trim $ showMenu' 0 xs
     where
@@ -50,9 +53,6 @@ getItem ctx n = let idx = integerToFin n (length ctx.menu) in
     case idx of
         Just f  => Just $ index f (fromList ctx.menu)
         Nothing => Nothing
-
-newCtx : Context -> (List Item) -> Context
-newCtx _ items = MkCtx items
 
 execTrans : Context -> Item -> IO (Context, String)
 execTrans ctx (MkItem Document _ s addr) = do
