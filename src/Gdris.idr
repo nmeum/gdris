@@ -22,6 +22,10 @@ record Context where
     constructor MkCtx
     menu   : (List Item)
 
+-- String used to prompt for input.
+prompt : String
+prompt = "> "
+
 newCtx : Context -> (List Item) -> Context
 newCtx _ items = MkCtx items
 
@@ -77,7 +81,7 @@ execGoto ctx n =
 
 runREPL : Context -> IO ()
 runREPL ctx = do
-    cmd <- readCommand "> "
+    cmd <- readCommand prompt
     case cmd of
         Goto x  => do p <- execGoto ctx x
                       putStrLn $ snd p
