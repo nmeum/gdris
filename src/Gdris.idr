@@ -1,6 +1,7 @@
 module Gdris
 
 import Gopher
+import Client
 import Parser
 
 import System
@@ -10,7 +11,7 @@ import Data.Fin
 import Data.Vect
 import Data.Strings
 
-import Network.Socket
+import Network.Socket.Data
 
 -- Valid REPL input commands.
 data Command = Goto Integer | Exit | Unknown
@@ -49,34 +50,6 @@ getItem ctx n = let idx = integerToFin n (length ctx.menu) in
     case idx of
         Just f  => Just $ index f (fromList ctx.menu)
         Nothing => Nothing
-
-createClient : Address -> IO (Either ResultCode Socket)
-createClient addr = do
-    Right sock <- socket AF_INET Stream 0
-        | Left fail => pure $ Left fail
-    res <- connect sock (Hostname $ fst addr) $ (cast $ snd addr)
-    if res /= 0
-        then pure $ Left res
-        else pure $ Right sock
-
-sendAndRecv : Socket -> String -> IO (Either ResultCode String)
-sendAndRecv sock input = do
-    n <- send sock input
-    case n of
-        Right _  => do r <- recvMsg sock
-                       case r of
-                        Right x => pure $ Right x
-                        Left err => pure $ Left err
-        Left err => pure $ Left err
-
-makeReq : Address -> String -> IO (Either ResultCode String)
-makeReq addr input = do
-    sock <- createClient addr
-    case sock of
-        Right s => do out <- sendAndRecv s (input ++ "\r\n")
-                      close s
-                      pure out
-        Left err => pure $ Left err
 
 newCtx : Context -> (List Item) -> Context
 newCtx _ items = MkCtx items

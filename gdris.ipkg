@@ -3,6 +3,7 @@ package gdris
 modules =
 	Gopher,
 	Parser,
+	Client,
 	Gdris
 
 depends = contrib, network
