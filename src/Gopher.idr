@@ -57,10 +57,6 @@ public export
 data Item = MkItem ItemType String Selector Address
 
 public export
-Show Item where
-    show (MkItem ty desc select addr) = "[" ++ show ty ++ "]" ++ "\t" ++ desc ++ "\t"
-
-public export
 unmarshalType : Char -> Maybe ItemType
 unmarshalType '0' = Just Document
 unmarshalType '1' = Just Directory
