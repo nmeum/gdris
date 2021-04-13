@@ -14,10 +14,6 @@ import Data.Nat
 
 import Network.Socket.Data
 
--- String used to separate link numbers from content.
-seperator : String
-seperator = " │ "
-
 -- Valid REPL input commands.
 data Command = Goto Integer | Menu | Exit | Unknown
 
@@ -28,6 +24,9 @@ record Context where
 
 newCtx : Context -> (List Item) -> Context
 newCtx _ items = MkCtx items
+
+maxTypeWidth : (List Item) -> Nat
+maxTypeWidth = foldr (\(MkItem ty _ _ _), acc => max (length $ show ty) acc) 0
 
 padToWidth : String -> Nat -> String
 padToWidth str n = if (Strings.length str) >= n
@@ -41,12 +40,19 @@ digitsReq n = if n `div` 10 > 0
     else 1
 
 showMenu : (List Item) -> String
-showMenu xs = trim $ showMenu' (digitsReq $ length xs) 0 xs
+showMenu xs = trim $ showMenu' (digitsReq $ length xs) (maxTypeWidth xs) 0 xs
     where
-        showMenu' : Nat -> Nat -> (List Item) -> String
-        showMenu' _ _ [] = ""
-        showMenu' max n (x :: xs) = (padToWidth (show n) max) ++ seperator
-                                    ++ (show x) ++ "\n" ++ (showMenu' max (n + 1) xs)
+        sep : String
+        sep = " │ "
+
+        showItem : Nat -> Item -> String
+        showItem max (MkItem ty desc _ _) = (padToWidth (show ty) max) ++ sep ++ desc
+
+        showMenu' : Nat -> Nat -> Nat -> (List Item) -> String
+        showMenu' _ _ _ [] = ""
+        showMenu' maxNum maxTy n (x :: xs) = (padToWidth (show n) maxNum) ++
+                                             " " ++ showItem maxTy x ++ "\n" ++
+                                             (showMenu' maxNum maxTy (n + 1) xs)
 
 -- XXX: If this returns a Maybe Monad the totality checker doesn't terminate
 lineToCmd : String -> Command
