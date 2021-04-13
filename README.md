@@ -10,7 +10,7 @@ Run the following command:
 
 Afterwards, start `gdris` using:
 
-	$ ./build/exec/gdris
+	$ ./build/exec/gdris <HOST> <PORT>
 
 ## License
 
