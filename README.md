@@ -4,13 +4,29 @@ A toy [gopher][rfc1436] client written in [Idris2][idris web].
 
 ## Building
 
-Run the following command:
+This software requires a working [idris2][idris2 github] installation.
+So far, it has only been tested with `v0.3.0` which is the most recent
+version at the time of writing. After installing idris2, compile this
+software using the following command:
 
 	$ idris2 --build gdris.ipkg
 
-Afterwards, start `gdris` using:
+This will create an executable in `./build/exec/gdris`.
 
-	$ ./build/exec/gdris <HOST> <PORT>
+## Usage
+
+The `gdris` program expects a `HOST` and `PORT` argument and starts an
+interactive read–eval–print loop (REPL) afterwards. For example, to
+connect to the `sdf.org` gopherhole start `gdris` as follows:
+
+	$ ./build/exec/gdris sdf.org 70
+
+This will print a menu for the initial directory listing on `sdf.org`.
+Each menu entry will have an associated numeric identifier. The `goto`
+command can be used to retrieve a specific document or to navigate to a
+subdirectory. The `goto` command expects a numeric menu entry identifier
+as an argument. The currently available menu entries can be retrieved
+using the `menu` command.
 
 ## License
 
@@ -29,3 +45,4 @@ with this program. If not, see <http://www.gnu.org/licenses/>.
 
 [rfc1436]: https://tools.ietf.org/html/rfc1436
 [idris web]: https://idris-lang.org
+[idris2 github]: https://github.com/idris-lang/Idris2
