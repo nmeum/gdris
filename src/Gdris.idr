@@ -32,7 +32,7 @@ newCtx _ items = MkCtx items
 padToWidth : String -> Nat -> String
 padToWidth str n = if (Strings.length str) >= n
                     then str
-                    else padToWidth (str ++ " ") $ pred n
+                    else padToWidth (str ++ " ") n
 
 -- Returns amount of digits required to display number in decimal.
 digitsReq : Nat -> Nat
