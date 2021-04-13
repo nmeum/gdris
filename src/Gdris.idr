@@ -3,6 +3,7 @@ module Gdris
 import Gopher
 import Client
 import Parser
+import Menu
 
 import System
 import System.File
@@ -10,7 +11,6 @@ import System.File
 import Data.Fin
 import Data.Vect
 import Data.Strings
-import Data.Nat
 
 import Network.Socket.Data
 
@@ -24,35 +24,6 @@ record Context where
 
 newCtx : Context -> (List Item) -> Context
 newCtx _ items = MkCtx items
-
-maxTypeWidth : (List Item) -> Nat
-maxTypeWidth = foldr (\(MkItem ty _ _ _), acc => max (length $ show ty) acc) 0
-
-padToWidth : String -> Nat -> String
-padToWidth str n = if (Strings.length str) >= n
-                    then str
-                    else padToWidth (str ++ " ") n
-
--- Returns amount of digits required to display number in decimal.
-digitsReq : Nat -> Nat
-digitsReq n = if n `div` 10 > 0
-    then 1 + (digitsReq $ n `div` 10)
-    else 1
-
-showMenu : (List Item) -> String
-showMenu xs = trim $ showMenu' (digitsReq $ length xs) (maxTypeWidth xs) 0 xs
-    where
-        sep : String
-        sep = " │ "
-
-        showItem : Nat -> Item -> String
-        showItem max (MkItem ty desc _ _) = (padToWidth (show ty) max) ++ sep ++ desc
-
-        showMenu' : Nat -> Nat -> Nat -> (List Item) -> String
-        showMenu' _ _ _ [] = ""
-        showMenu' maxNum maxTy n (x :: xs) = (padToWidth (show n) maxNum) ++
-                                             " " ++ showItem maxTy x ++ "\n" ++
-                                             (showMenu' maxNum maxTy (n + 1) xs)
 
 -- XXX: If this returns a Maybe Monad the totality checker doesn't terminate
 lineToCmd : String -> Command

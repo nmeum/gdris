@@ -4,6 +4,7 @@ modules =
 	Gopher,
 	Parser,
 	Client,
+	Menu,
 	Gdris
 
 depends = contrib, network
