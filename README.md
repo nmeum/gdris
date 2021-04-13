@@ -2,6 +2,8 @@
 
 A toy [gopher][rfc1436] client written in [Idris2][idris web].
 
+![GIF demonstrating gdris usage](https://gist.github.com/nmeum/b7e9986fff26ada4667c1887ff99ee3e/raw/f428c01ce5fd54c63adba482d63a8430a4abfbce/gdris.gif)
+
 ## Building
 
 This software requires a working [idris2][idris2 github] installation.
