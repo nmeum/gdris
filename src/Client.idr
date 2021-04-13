@@ -17,10 +17,7 @@ sendAndRecv : Socket -> String -> IO (Either ResultCode String)
 sendAndRecv sock input = do
     n <- send sock input
     case n of
-        Right _  => do r <- recvMsg sock
-                       case r of
-                        Right x => pure $ Right x
-                        Left err => pure $ Left err
+        Right _  => recvMsg sock
         Left err => pure $ Left err
 
 public export
