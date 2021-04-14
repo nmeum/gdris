@@ -70,5 +70,6 @@ parseAll input = do
 	pure $ case r of
 		Left err => Left err
 		Right (items, n) => if n /= (cast $ length input)
-			then Left $ "not all data consumed: " ++ (show (n - (cast $ length input)))
+			then Left $ "not all data consumed, remaining: "
+				++ (show $ (cast (length input)) - n)
 			else Right items
